@@ -44,7 +44,7 @@ class IndexStore {
     onPageSelect = page => {
         if (page < 1 || page > this.pagination.totalPages) return false;
         this.pagination.currPage = page;
-        this.router.push({path: "/", query: {...this.filter, page}});
+        this.router.push({path: "/", query: this.filterQuery({...this.filter, page})});
         window.scrollTo(0, 0);
     }
 
@@ -53,15 +53,16 @@ class IndexStore {
         this.error = error;
     }
 
+    filterQuery(query){
+        return Object.assign(
+            ...Object.keys(query).map(
+                key => (query[key]) && {[key]: query[key]}
+            )
+        );
+    }
+
     setFilter(key, value) {
-        this.filter[key] = value;
-        let query = {};
-        Object.keys(this.filter).forEach((k) => {
-            if(this.filter[k] !== "")
-                query[k] = this.filter[k]
-        })
-        query.page = this.pagination.currPage = 1;
-        this.router.push({path: "/", query: query});
+        this.router.push({path: "/", query: this.filterQuery({...this.filter, [key]: value})});
     }
 
     checkDate = current => {

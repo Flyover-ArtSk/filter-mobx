@@ -35056,7 +35056,7 @@
 
 	    if (errorHandler) {
 	        instance.interceptors.response.use(undefined, function (err) {
-	            errorHandler(err.response.statusText);
+	            errorHandler(err.response.data.error.message);
 	            throw err;
 	        });
 	    }
@@ -35513,6 +35513,10 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 	function _initDefineProp(target, property, descriptor, context) {
 	    if (!descriptor) return;
 	    Object.defineProperty(target, property, {
@@ -35587,7 +35591,7 @@
 	        this.onPageSelect = function (page) {
 	            if (page < 1 || page > _this.pagination.totalPages) return false;
 	            _this.pagination.currPage = page;
-	            _this.router.push({ path: "/", query: _extends({}, _this.filter, { page: page }) });
+	            _this.router.push({ path: "/", query: _this.filterQuery(_extends({}, _this.filter, { page: page })) });
 	            window.scrollTo(0, 0);
 	        };
 
@@ -35620,17 +35624,16 @@
 	            });
 	        }
 	    }, {
+	        key: 'filterQuery',
+	        value: function filterQuery(query) {
+	            return Object.assign.apply(Object, _toConsumableArray(Object.keys(query).map(function (key) {
+	                return query[key] && _defineProperty({}, key, query[key]);
+	            })));
+	        }
+	    }, {
 	        key: 'setFilter',
 	        value: function setFilter(key, value) {
-	            var _this3 = this;
-
-	            this.filter[key] = value;
-	            var query = {};
-	            Object.keys(this.filter).forEach(function (k) {
-	                if (_this3.filter[k] !== "") query[k] = _this3.filter[k];
-	            });
-	            query.page = this.pagination.currPage = 1;
-	            this.router.push({ path: "/", query: query });
+	            this.router.push({ path: "/", query: this.filterQuery(_extends({}, this.filter, _defineProperty({}, key, value))) });
 	        }
 	    }, {
 	        key: 'onDateChange',
@@ -35676,7 +35679,7 @@
 	    }, {
 	        key: 'updateData',
 	        value: function updateData() {
-	            var _this4 = this;
+	            var _this3 = this;
 
 	            this.loading = true;
 	            (0, _api2.default)('log', {
@@ -35685,13 +35688,13 @@
 	                offset: (this.pagination.currPage - 1) * this.pagination.limit
 	            }, this.onServerRequestError).get().then(function (response) {
 	                if (response.status == 200) {
-	                    _this4.list = response.data.payload.collection;
-	                    _this4.pagination = _extends({}, _this4.pagination, response.data.payload.pagination);
-	                    _this4.error = null;
+	                    _this3.list = response.data.payload.collection;
+	                    _this3.pagination = _extends({}, _this3.pagination, response.data.payload.pagination);
+	                    _this3.error = null;
 	                } else {
-	                    _this4.error = response.error.message;
+	                    _this3.error = response.error.message;
 	                }
-	                _this4.loading = false;
+	                _this3.loading = false;
 	            });
 	        }
 	    }]);
